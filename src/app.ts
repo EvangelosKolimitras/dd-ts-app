@@ -29,7 +29,7 @@ class ProjectInput {
     }
 
     private configure() {
-        this.el.addEventListener("click", this.submitHandler)
+        this.el.addEventListener("click", this.submitHandler.bind(this))
     }
 
     private attach() {
