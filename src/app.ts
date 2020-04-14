@@ -102,7 +102,12 @@ class Projects {
 
         // Register a listener
         State.addListener((projects: Project[]) => {
-            this.addedProjects = projects
+            // check if he project is active or ended
+            this.addedProjects = projects.filter(p => {
+                if (this.type === "active") return p.status === ProjectStatus.Active
+                return p.status === ProjectStatus.Ended
+
+            })
             this.renderProjects()
         })
 
@@ -113,9 +118,10 @@ class Projects {
 
     private renderProjects() {
         const listEl = document.getElementById(`${this.type}-projects-list`)! as HTMLUListElement
+        listEl.innerHTML = ""
         for (const items of this.addedProjects) {
             const list_item = document.createElement("li")
-            list_item.textContent = items.id
+            list_item.textContent = items.title
             listEl?.appendChild(list_item)
         }
     }
