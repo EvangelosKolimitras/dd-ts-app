@@ -1,8 +1,25 @@
+enum ProjectStatus {
+    Active,
+    Ended
+}
 
+class Project {
+    constructor(
+        public id: string,
+        public title: string,
+        public description: string,
+        public people: number,
+        public status: ProjectStatus
+    ) { }
+}
+
+type Listener = (items: Project[]) => void
+
+// Project state
 class ProjectState {
-    private projects: any[] = []
+    private projects: Project[] = []
     private static instance: ProjectState
-    private listeners: any[] = []
+    private listeners: Listener[] = []
 
     // Singleton pattern
     private constructor() { }
@@ -14,17 +31,12 @@ class ProjectState {
         return this.instance
     }
 
-    addListener(fn: Function) {
+    addListener(fn: Listener) {
         this.listeners.push(fn)
     }
 
     public addProject(title: string, description: string, members: number) {
-        const newProject = {
-            id: Math.random().toString(),
-            title,
-            description,
-            members
-        }
+        const newProject = new Project(Math.random().toString(), title, description, members, ProjectStatus.Active)
         this.projects.push(newProject)
         for (const fn of this.listeners)
             fn(this.projects.slice())
@@ -77,7 +89,7 @@ class Projects {
     template: HTMLTemplateElement
     placeHolder: HTMLDivElement
     el: HTMLElement
-    addedProjects: any
+    addedProjects: Project[]
 
     constructor(private type: 'active' | 'ended') {
         this.template = document.getElementById("project-list")! as HTMLTemplateElement
@@ -89,7 +101,7 @@ class Projects {
         this.el.id = `${this.type}-projects`
 
         // Register a listener
-        State.addListener((projects: any[]) => {
+        State.addListener((projects: Project[]) => {
             this.addedProjects = projects
             this.renderProjects()
         })
@@ -103,7 +115,7 @@ class Projects {
         const listEl = document.getElementById(`${this.type}-projects-list`)! as HTMLUListElement
         for (const items of this.addedProjects) {
             const list_item = document.createElement("li")
-            list_item.textContent = items.title
+            list_item.textContent = items.id
             listEl?.appendChild(list_item)
         }
     }
