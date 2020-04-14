@@ -135,12 +135,9 @@ class Item extends Component<HTMLUListElement, HTMLLIElement>{
     }
     configure() { }
     renderer() {
-
         this.element.querySelector("h2")!.innerHTML = this.project.title
         this.element.querySelector("h3")!.innerHTML = "" && this.project.people.toString
         this.element.querySelector("p")!.innerHTML = this.project.description
-
-
     }
 }
 
@@ -181,7 +178,7 @@ class Items extends Component<HTMLDivElement, HTMLElement> {
     private renderProjects() {
         const listEl = document.getElementById(`${this.type}-projects-list`)! as HTMLUListElement
         listEl.innerHTML = ""
-        for (const item of this.addedProjects) new Item(this.element.id, item)
+        for (const item of this.addedProjects) new Item(this.element.querySelector("ul")!.id, item)
     }
 
 }
