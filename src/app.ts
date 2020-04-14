@@ -24,7 +24,6 @@ class InputValidator {
             isValid = isValid && this.value < this.max
         return isValid;
     }
-
 }
 
 // Generator
@@ -37,9 +36,38 @@ function AutobindGenerator(_: any, __: string, PropertyDescriptor: PropertyDescr
     }
 }
 
+// Project list class
+
+class Projects {
+    template: HTMLTemplateElement
+    placeHolder: HTMLDivElement
+    el: HTMLElement
+
+    constructor(private type: 'active' | 'ended') {
+        this.template = document.getElementById("project-list")! as HTMLTemplateElement
+        this.placeHolder = document.getElementById("app")! as HTMLDivElement
+        const import_node = document.importNode(this.template.content, true)
+        this.el = import_node.firstElementChild as HTMLElement
+        this.el.id = `${this.type}-projects`
+
+        this.attach()
+        this.renderH2()
+    }
+
+    private attach() {
+        this.placeHolder.insertAdjacentElement("beforeend", this.el)
+    }
+
+    private renderH2() {
+        const listId = `${this.type}-projects-list`
+        this.el.querySelector("ul")!.id = listId
+        this.el.querySelector("h2")!.innerHTML = `${this.type.toUpperCase()} + Projects`
+    }
+}
+
 class ProjectInput {
     template: HTMLTemplateElement
-    app: HTMLDivElement
+    htmlPlaceholder: HTMLDivElement
     el: HTMLFormElement
     title_el: HTMLInputElement
     descr_el: HTMLInputElement
@@ -47,7 +75,7 @@ class ProjectInput {
 
     constructor() {
         this.template = document.getElementById("project-input")! as HTMLTemplateElement
-        this.app = document.getElementById("app")! as HTMLDivElement
+        this.htmlPlaceholder = document.getElementById("app")! as HTMLDivElement
 
         const node = document.importNode(this.template.content, true)
         this.el = node.firstElementChild as HTMLFormElement
@@ -94,8 +122,10 @@ class ProjectInput {
     }
 
     private attach() {
-        this.app.insertAdjacentElement("afterbegin", this.el)
+        this.htmlPlaceholder.insertAdjacentElement("afterbegin", this.el)
     }
 }
 
 const new_p = new ProjectInput()
+const a_list = new Projects("active")
+const e_list = new Projects("ended")
