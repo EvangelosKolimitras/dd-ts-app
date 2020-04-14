@@ -1,3 +1,12 @@
+function autobind(_: any, __: string, PropertyDescriptor: PropertyDescriptor) {
+    return {
+        configurable: true,
+        get() {
+            return PropertyDescriptor.value.bind(this)
+        }
+    }
+}
+
 class ProjectInput {
     template: HTMLTemplateElement
     app: HTMLDivElement
@@ -23,13 +32,16 @@ class ProjectInput {
 
     }
 
-    private submitHandler = (e: Event) => {
+
+
+    @autobind
+    private submitHandler(e: Event) {
         e.preventDefault();
         console.log(this.title_el.value)
     }
 
     private configure() {
-        this.el.addEventListener("click", this.submitHandler.bind(this))
+        this.el.addEventListener("click", this.submitHandler)
     }
 
     private attach() {
