@@ -81,7 +81,7 @@ class InputValidator {
 }
 
 // Generator
-function AutobindGenerator(_: any, __: string, PropertyDescriptor: PropertyDescriptor) {
+function AutobindDecorator(_: any, __: string, PropertyDescriptor: PropertyDescriptor) {
     return {
         configurable: true,
         get() {
@@ -123,7 +123,7 @@ abstract class Component<T extends HTMLElement, U extends HTMLElement>{
 
 
 // Individual item
-class Item extends Component<HTMLUListElement, HTMLLIElement>{
+class Item extends Component<HTMLUListElement, HTMLLIElement> implements Draggable {
     private project: Project
 
     constructor(placholderId: string, project: Project) {
@@ -133,7 +133,21 @@ class Item extends Component<HTMLUListElement, HTMLLIElement>{
         this.configure()
         this.renderer()
     }
-    configure() { }
+
+    @AutobindDecorator
+    dragStartHandler(e: DragEvent) {
+        console.log(e)
+    }
+
+    dragEndHandler(_: DragEvent) {
+        // TODO
+    }
+
+
+    configure() {
+        this.element.addEventListener("dragstart", this.dragStartHandler)
+    }
+
     renderer() {
         const { title, members, description } = this.project
         this.element.querySelector("h2")!.innerHTML = title
@@ -224,7 +238,7 @@ class ProjectInput extends Component<HTMLDivElement, HTMLFormElement> {
 
     }
 
-    @AutobindGenerator
+    @AutobindDecorator
     private submitHandler(e: Event) {
         e.preventDefault();
         const input = this.getAllUsersInput()
@@ -235,6 +249,17 @@ class ProjectInput extends Component<HTMLDivElement, HTMLFormElement> {
         }
     }
 
+}
+
+interface Draggable {
+    dragStartHandler(e: DragEvent): void
+    dragEndHandler(e: DragEvent): void
+}
+
+interface DragTarget {
+    dragOverHandler(e: DragEvent): void
+    dropHandler(e: DragEvent): void
+    dragLeaveHandler(e: DragEvent): void
 }
 
 const new_p = new ProjectInput()
