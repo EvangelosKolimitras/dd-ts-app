@@ -1,4 +1,34 @@
-function autobind(_: any, __: string, PropertyDescriptor: PropertyDescriptor) {
+// Validates user's input
+class InputValidator {
+
+    constructor(
+        private value: string | number,
+        private required?: boolean,
+        private minLen?: number,
+        private maxLen?: number,
+        private min?: number,
+        private max?: number
+    ) { }
+
+    public validate() {
+        let isValid = true
+        if (this.required)
+            isValid = isValid && this.value.toString().trim().length !== 0
+        if (this.minLen != null && typeof this.value === "string")
+            isValid = isValid && this.value.length > this.minLen
+        if (this.maxLen != null && typeof this.value === "string")
+            isValid = isValid && this.value.length < this.maxLen
+        if (this.min != null && typeof this.min === "number")
+            isValid = isValid && this.value > this.min
+        if (this.max != null && typeof this.max === "number")
+            isValid = isValid && this.value < this.max
+        return isValid;
+    }
+
+}
+
+// Generator
+function AutobindGenerator(_: any, __: string, PropertyDescriptor: PropertyDescriptor) {
     return {
         configurable: true,
         get() {
@@ -32,16 +62,35 @@ class ProjectInput {
 
     }
 
+    private getAllUsersInput(): [string, string, number] | void {
+        const t = this.title_el.value
+        const d = this.descr_el.value
+        const p = this.peopl_el.value
 
+        const v_title = new InputValidator(t, true)
+        const v_descr = new InputValidator(d, true, 10)
+        const v_peopl = new InputValidator(+p, true, 1, 5)
 
-    @autobind
+        if (!v_title.validate() || !v_descr.validate() || !v_peopl.validate()) {
+            console.log('Invalid input')
+            return
+        }
+        return [t, d, +p]
+
+    }
+
+    @AutobindGenerator
     private submitHandler(e: Event) {
         e.preventDefault();
-        console.log(this.title_el.value)
+        const input = this.getAllUsersInput()
+        if (Array.isArray(input)) {
+            const [title, description, people] = input
+            console.log(title, description, people)
+        }
     }
 
     private configure() {
-        this.el.addEventListener("click", this.submitHandler)
+        this.el.addEventListener("submit", this.submitHandler)
     }
 
     private attach() {
@@ -50,4 +99,3 @@ class ProjectInput {
 }
 
 const new_p = new ProjectInput()
-console.log(new_p)
