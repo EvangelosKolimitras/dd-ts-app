@@ -19,7 +19,7 @@ class Project {
         public id: string,
         public title: string,
         public description: string,
-        public people: number,
+        public members: number,
         public status: ProjectStatus
     ) { }
 }
@@ -135,9 +135,11 @@ class Item extends Component<HTMLUListElement, HTMLLIElement>{
     }
     configure() { }
     renderer() {
-        this.element.querySelector("h2")!.innerHTML = this.project.title
-        this.element.querySelector("h3")!.innerHTML = "" && this.project.people.toString
-        this.element.querySelector("p")!.innerHTML = this.project.description
+        const { title, members, description } = this.project
+        this.element.querySelector("h2")!.innerHTML = title
+        this.element.querySelector("h3")!.innerHTML = `
+        ${members.toString()} member${members.toString().length !== 1 ? "" : "s"} are assigned to this project.`
+        this.element.querySelector("p")!.innerHTML = description
     }
 }
 
@@ -147,7 +149,7 @@ class Items extends Component<HTMLDivElement, HTMLElement> {
     addedProjects: Project[]
 
     constructor(private type: 'active' | 'ended') {
-        super("project-list", "app", false, `${type}-projects`)
+        super("project-list", "app", false, `${type} -projects`)
         this.addedProjects = []
 
         // Register a listener
@@ -170,13 +172,13 @@ class Items extends Component<HTMLDivElement, HTMLElement> {
     // !! I used public for the renderer method because we ca not have private implementation
     //    of abstract methods or properties
     public renderer() {
-        const listId = `${this.type}-projects-list`
+        const listId = `${this.type} -projects - list`
         this.element.querySelector("ul")!.id = listId
         this.element.querySelector("h2")!.innerHTML = `${this.type.toUpperCase()} + Projects`
     }
 
     private renderProjects() {
-        const listEl = document.getElementById(`${this.type}-projects-list`)! as HTMLUListElement
+        const listEl = document.getElementById(`${this.type} -projects - list`)! as HTMLUListElement
         listEl.innerHTML = ""
         for (const item of this.addedProjects) new Item(this.element.querySelector("ul")!.id, item)
     }
