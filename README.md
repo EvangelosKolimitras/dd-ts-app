@@ -1,1 +1,1 @@
-# An object oriented based drag and drop typescript application
+# An object oriented component based drag and drop typescript application

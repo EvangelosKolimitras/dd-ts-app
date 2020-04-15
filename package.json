@@ -4,7 +4,8 @@
   "description": "An object oriented based drag and drop typescript application",
   "main": "app.js",
   "scripts": {
-    "start": "lite-server"
+    "build": "webpack --config webpack.config.prod.js",
+    "start": "webpack-dev-server"
   },
   "keywords": [
     "typescript",
@@ -14,5 +15,13 @@
   "license": "ISC",
   "devDependencies": {
     "lite-server": "^2.5.4"
+  },
+  "dependencies": {
+    "clean-webpack-plugin": "^3.0.0",
+    "ts-loader": "^7.0.0",
+    "typescript": "^3.8.3",
+    "webpack": "^4.42.1",
+    "webpack-cli": "^3.3.11",
+    "webpack-dev-server": "^3.10.3"
   }
 }
