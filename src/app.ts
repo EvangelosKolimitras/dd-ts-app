@@ -49,7 +49,7 @@ class ProjectState extends BaseState<Project> {
 
     public dragProject(pid: string, status: ProjectStatus) {
         const p = this.projects!.find(p => p.id === pid);
-        if (p) {
+        if (p && p.status !== status) {
             p.status = status
             this.updater()
         }
