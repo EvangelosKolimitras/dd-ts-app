@@ -29,8 +29,6 @@ class ProjectState extends BaseState<Project> {
     private projects: Project[] = []
     private static instance: ProjectState
 
-
-    // Singleton pattern
     private constructor() {
         super()
     }
@@ -42,12 +40,23 @@ class ProjectState extends BaseState<Project> {
         return this.instance
     }
 
+    // Singleton pattern
     public addProject(title: string, description: string, members: number) {
         const newProject = new Project(Math.random().toString(), title, description, members, ProjectStatus.Active)
         this.projects.push(newProject)
-        for (const fn of this.listeners)
-            fn(this.projects.slice())
+        this.updater()
     }
+
+    public dragProject(pid: string, status: ProjectStatus) {
+        const p = this.projects!.find(p => p.id === pid);
+        if (p) {
+            p.status = status
+            this.updater()
+        }
+    }
+
+    private updater() { for (const fn of this.listeners) fn(this.projects.slice()) }
+
 }
 
 const State = ProjectState.getInstance()
@@ -117,8 +126,8 @@ abstract class Component<T extends HTMLElement, U extends HTMLElement>{
     private attach(insertAt: boolean) {
         this.placeholder.insertAdjacentElement(insertAt ? "afterbegin" : "beforeend", this.element)
     }
-    abstract configure?(): void
-    abstract renderer?(): void // renders content to the DOM
+    abstract configure(): void
+    abstract renderer(): void // renders content to the DOM
 }
 
 
@@ -136,7 +145,8 @@ class Item extends Component<HTMLUListElement, HTMLLIElement> implements Draggab
 
     @AutobindDecorator
     dragStartHandler(e: DragEvent) {
-        console.log(e)
+        e.dataTransfer!.setData("text/plain", this.project.id)
+        e.dataTransfer!.effectAllowed = "move"
     }
 
     dragEndHandler(_: DragEvent) {
@@ -178,10 +188,35 @@ class Items extends Component<HTMLDivElement, HTMLElement> {
             this.renderProjects()
         })
 
+        this.configure()
         this.renderer()
     }
 
-    public configure() { /* No implementation  */ }
+    @AutobindDecorator
+    dragOverHandler(e: DragEvent) {
+        e.dataTransfer!.types[0] === "text/plain"
+        e.preventDefault()
+        const ul = this.element.querySelector("ul")!
+        ul.classList.add("droppable")
+    }
+
+    @AutobindDecorator
+    dropHandler(e: DragEvent) {
+        const d_project = e.dataTransfer!.getData('text/plain')
+        State.dragProject(d_project, this.type === "active" ? ProjectStatus.Active : ProjectStatus.Ended)
+    }
+
+    @AutobindDecorator
+    dragLeaveHandler(_: DragEvent) {
+        const ul = this.element.querySelector("ul")!
+        ul.classList.remove("droppable")
+    }
+
+    public configure() {
+        this.element.addEventListener("dragover", this.dragOverHandler)
+        this.element.addEventListener("drop", this.dropHandler)
+        this.element.addEventListener("dragleave", this.dragLeaveHandler)
+    }
 
     // !! I used public for the renderer method because we ca not have private implementation
     //    of abstract methods or properties
@@ -245,7 +280,6 @@ class ProjectInput extends Component<HTMLDivElement, HTMLFormElement> {
         if (Array.isArray(input)) {
             const [title, description, people] = input
             State.addProject(title, description, people)
-            console.log(title, description, people)
         }
     }
 
